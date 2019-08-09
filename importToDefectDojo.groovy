@@ -17,17 +17,45 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.codehaus.jackson.map.DeserializationConfig;
 
 def call(args) {
-    DefectDojoService defectDojoService = new DefectDojoService()
-    DefectDojoResponse<ToolType> responseExisting = new DefectDojoResponse<>()
-    DefectDojoPersistenceProvider persistenceProvider = new DefectDojoPersistenceProvider()
+
+    DefectDojoService defectDojoService = new DefectDojoService();
 
     defectDojoService.defectDojoUrl = 'http://localhost:8080'
     defectDojoService.defectDojoApiKey = '3fdbfbacf25c3fe2f6f035a150e4aba36b37b2f9'
     defectDojoService.defectDojoDefaultUserName = 'admin'
 
+    
+
+    EngagementPayload engagement = new EngagementPayload();
+    engagement.setBranch("fix/stuff");
+
+    String reportContents = new File('/home/tpagel/git/sda/sda-commons-owasp-dependency-check/build/reports/dependency-check-report.xml').text
+    //String reportContents = new File('/home/tpagel/git/sample-scan-files/dependency_check/dependecy_check_v4.0.2.xml').text
+    defectDojoService.createFindingsForEngagementName(
+        "Dep Check current",
+        reportContents,
+        "Dependency Check Scan",
+        2,
+        1,
+        engagement
+    );
+
+    //DefectDojoPersistenceProvider persistenceProvider = new DefectDojoPersistenceProvider()
+    //persistenceProvider.defectDojoService = defectDojoService
+    //persistenceProvider.persist securityTest
+
+/*
+    DefectDojoService defectDojoService = new DefectDojoService()
+    DefectDojoResponse<ToolType> responseExisting = new DefectDojoResponse<>()
+    DefectDojoPersistenceProvider persistenceProvider = new DefectDojoPersistenceProvider()
+
+    defectDojoService.defectDojoUrl = 'https://defectdojo.sda-se.io'
+    defectDojoService.defectDojoApiKey = '82ed693566cfb1e5322d9801b8bfdc380ed10ea1'
+    defectDojoService.defectDojoDefaultUserName = 'admin'
+
     persistenceProvider.defectDojoService = defectDojoService
 
-    String fileContents = new File('/home/tpagel/git/sample-scan-files/dependency_check/dependecy_check_v4.0.2.xml').text
+    String fileContents = new File('/home/tpagel/git/sda/sda-commons-owasp-dependency-check/build/reports/dependency-check-report.xml').text
     
     Report report = new Report(Collections.emptyList(), fileContents)
 
@@ -42,10 +70,10 @@ def call(args) {
     securityTest.report = report
     securityTest.target = target
     securityTest.setName 'dependencycheck' // DefectDojo test name?
-    securityTest.setContext "test2" // productName
+    securityTest.setContext "sda-commons" // productName
     securityTest.setMetaData(metaData)
 
     persistenceProvider.persist securityTest
-
+*/
     //println args.foo
 }
