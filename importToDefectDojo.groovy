@@ -15,6 +15,7 @@ import io.securecodebox.model.securitytest.SecurityTest
 import io.securecodebox.model.execution.Target
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.codehaus.jackson.map.DeserializationConfig
+import org.springframework.util.LinkedMultiValueMap;
 
 def call(args) {
     DefectDojoService defectDojoService = new DefectDojoService();
@@ -35,7 +36,9 @@ def call(args) {
     def engagementName = "Dep Check " + args.branchName
     def reportType = "Dependency Check Scan"
     def testName = reportType // After defectdojo version 1.5.4. "${engagementName} ${timeNow}"
-    
+    def minimumServerity = "High"
+
+
     defectDojoService.createFindingsForEngagementName(
         engagementName,
         reportContents,
@@ -48,5 +51,15 @@ def call(args) {
 
     def existingBranchesInGit = [args.branchName, "branch2", "branch3"]
     defectDojoService.deleteUnusedBranches(existingBranchesInGit, args.product)
+
+    List<Finding> findings = defectDojoService.receiveNonHandeldFindings(args.product, engagementName, minimumServerity, new LinkedMultiValueMap<>());
+    for(Finding finding : findings) {
+        println finding.getTitle() + " " + finding.getSeverity()
+    }
+    long findingSize = findings.size()
+    if(findingSize > 0) {
+        // Mark build as unstable
+        println "$findingSize vulnerabilities found with serverity $minimumServerity or higher"
+    }
 }
 
