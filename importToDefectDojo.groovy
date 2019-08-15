@@ -3,6 +3,8 @@
 @GrabConfig(systemClassLoader=true)
 @Grab(group='com.fasterxml.jackson.core', module='jackson-core', version='2.9.9')
 @Grab(group='com.fasterxml.jackson.core', module='jackson-databind', version='2.9.9.2')
+// only needed in docker
+@Grab('io.securecodebox.core:app:0.0.1-SNAPSHOT')
 @Grab('io.securecodebox.core:sdk:0.0.1-SNAPSHOT')
 @Grab('io.securecodebox.persistenceproviders:defectdojo-persistenceprovider:0.0.1-SNAPSHOT')
 @Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
@@ -35,9 +37,15 @@ def call(args) {
     def timeNow = date.format("HH:mm:ss")
     def engagementName = "Dep Check " + args.branchName
     def reportType = "Dependency Check Scan"
+    //def testName = "${engagementName} ${timeNow}"
     def testName = reportType // After defectdojo version 1.5.4. "${engagementName} ${timeNow}"
     def minimumServerity = "High"
-
+    def engagementId = 2;
+    
+    /*
+    def testId = 12
+    defectDojoService.createFindingsReImport(reportContents, engagementId, args.lead, "2019-08-14", reportType, testId)
+    */
 
     defectDojoService.createFindingsForEngagementName(
         engagementName,
@@ -61,5 +69,6 @@ def call(args) {
         // Mark build as unstable
         println "$findingSize vulnerabilities found with serverity $minimumServerity or higher"
     }
+
 }
 
